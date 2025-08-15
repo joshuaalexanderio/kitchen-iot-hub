@@ -7,9 +7,11 @@ type Props = {
     dishStatus: 'dirty' | 'clean';
 };
 export default function DishwasherStatus({ dishStatus}: Props) {
+
     const [currentStatus, setCurrentStatus] = useState(dishStatus);
     const warningPlayer = useAudioPlayer('/System/Library/Audio/UISounds/jbl_cancel.caf');
     const successPlayer = useAudioPlayer('/System/Library/Audio/UISounds/jbl_confirm.caf');
+    const ESP32_URL = "http://myesp32.local";
 
     // Listen for ESP32 button presses
     useEffect(() => {
@@ -17,7 +19,7 @@ export default function DishwasherStatus({ dishStatus}: Props) {
 
         const checkForButtonChanges = async () => {
             try {
-                const response = await fetch('http://10.0.0.122/api/lights');
+                const response = await fetch('http://myesp32.local/api/lights');
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -54,10 +56,10 @@ export default function DishwasherStatus({ dishStatus}: Props) {
 
     const toggleDishStatus = () => {
         if (currentStatus === 'clean') {
-            fetch('http://10.0.0.122/api/lights/19/off', {
+            fetch('http://myesp32.local/api/lights/19/off', {
                 method: 'POST'
             });
-            fetch('http://10.0.0.122/api/lights/18/on', {
+            fetch('http://myesp32.local/api/lights/18/on', {
                 method: 'POST'
             });
             // Delay to feel smooth with haptics
@@ -70,10 +72,10 @@ export default function DishwasherStatus({ dishStatus}: Props) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         }
         else if (currentStatus === 'dirty') {
-            fetch('http://10.0.0.122/api/lights/18/off', {
+            fetch('http://myesp32.local/api/lights/18/off', {
                 method: 'POST'
             });
-            fetch('http://10.0.0.122/api/lights/19/on', {
+            fetch('http://myesp32.local/api/lights/19/on', {
                 method: 'POST'
             });
             // Delay to feel smooth with haptics
