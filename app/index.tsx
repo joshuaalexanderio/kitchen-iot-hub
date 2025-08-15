@@ -1,19 +1,20 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 import DishwasherStatus from "../components/DishwasherStatus";
-import {useRouter} from "expo-router";
+import { Link, useRouter } from "expo-router";
 
 export default function Index() {
-
   return (
-    <DishwasherStatus dishStatus={"dirty"}/>
+    <View style={styles.container}>
+      <DishwasherStatus dishStatus={"dirty"} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
