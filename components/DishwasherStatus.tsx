@@ -1,13 +1,25 @@
-import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  View,
+  Animated,
+} from "react-native";
 import { theme } from "../theme";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as Haptics from "expo-haptics";
 import { useAudioPlayer } from "expo-audio";
+
 type Props = {
   dishStatus: "dirty" | "clean";
 };
+
 export default function DishwasherStatus({ dishStatus }: Props) {
   const [currentStatus, setCurrentStatus] = useState(dishStatus);
+  const [isConnected, setIsConnected] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
   const warningPlayer = useAudioPlayer(
     "/System/Library/Audio/UISounds/jbl_cancel.caf",
   );
@@ -15,6 +27,22 @@ export default function DishwasherStatus({ dishStatus }: Props) {
     "/System/Library/Audio/UISounds/jbl_confirm.caf",
   );
   const ESP32_BASE_URL = "http://10.0.0.122";
+
+  // Button press animation
+  const animateButton = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.98,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   // Listen for ESP32 button presses
   useEffect(() => {
@@ -24,6 +52,8 @@ export default function DishwasherStatus({ dishStatus }: Props) {
       try {
         const response = await fetch(`${ESP32_BASE_URL}/api/lights`);
         const data = await response.json();
+
+        setIsConnected(true);
 
         if (data.status === "success") {
           const currentState = data.lights;
@@ -45,6 +75,7 @@ export default function DishwasherStatus({ dishStatus }: Props) {
         }
       } catch (error) {
         console.error("ESP32 polling error:", error);
+        setIsConnected(false);
       }
     };
 
@@ -61,6 +92,8 @@ export default function DishwasherStatus({ dishStatus }: Props) {
   }, []);
 
   const toggleDishStatus = () => {
+    animateButton();
+
     if (currentStatus === "clean") {
       fetch(`${ESP32_BASE_URL}/api/lights/19/off`, {
         method: "POST",
@@ -95,42 +128,101 @@ export default function DishwasherStatus({ dishStatus }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.mediumText}>{currentStatus}</Text>
-      <TouchableOpacity
-        style={styles.button}
-        activeOpacity={0.7}
-        onPress={() => {
-          toggleDishStatus();
-        }}
-      >
-        <Text style={styles.buttonText}>Toggle</Text>
-      </TouchableOpacity>
+      <View style={styles.statusCard}>
+        <Animated.View style={[styles.statusContainer, { opacity: fadeAnim }]}>
+          <Text style={styles.title}>Dishwasher</Text>
+          <Text style={styles.statusText}>{currentStatus}</Text>
+        </Animated.View>
+
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+          <TouchableOpacity
+            style={[styles.button, !isConnected && styles.disconnectedButton]}
+            activeOpacity={0.7}
+            onPress={toggleDishStatus}
+            disabled={!isConnected}
+          >
+            <Text style={styles.buttonText}>
+              {isConnected ? "Toggle" : "Offline"}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {!isConnected && (
+          <Text style={styles.connectionStatus}>Device disconnected</Text>
+        )}
+      </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: theme.colorWhite,
     alignItems: "center",
     justifyContent: "center",
+    padding: 20,
+  },
+  statusCard: {
+    alignItems: "center",
+    backgroundColor: theme.colorOffWhite,
+    borderRadius: 16,
+    padding: 40,
+    minWidth: 200,
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  statusContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 16,
+    color: theme.colorDarkGrey,
+    marginBottom: 8,
+    fontWeight: "500",
+    letterSpacing: 0.5,
+  },
+  statusText: {
+    fontSize: 32,
+    fontWeight: "300",
+    color: theme.colorBlack,
+    letterSpacing: 1,
   },
   button: {
     backgroundColor: theme.colorBlack,
-    padding: 8,
-    marginTop: 6,
-    borderRadius: 10,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    minWidth: 100,
+    alignItems: "center",
+    elevation: 2,
+    shadowColor: theme.colorBlack,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  disconnectedButton: {
+    backgroundColor: theme.colorGrey,
   },
   buttonText: {
     color: theme.colorWhite,
+    fontSize: 16,
+    fontWeight: "500",
   },
-  smallText: {
-    fontSize: 12, // Small font size
-  },
-  mediumText: {
-    fontSize: 18, // Medium font size
-  },
-  largeText: {
-    fontSize: 24, // Large font size
+  connectionStatus: {
+    fontSize: 12,
+    color: theme.colorGrey,
+    marginTop: 16,
+    fontStyle: "italic",
   },
 });
