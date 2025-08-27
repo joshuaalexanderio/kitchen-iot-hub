@@ -28,6 +28,12 @@ const int greenLight = 19;
 const int lightToggle = 21;
 const int timerButton = 22;
 
+// Button state variables
+bool lastButtonState = HIGH;
+bool currentButtonState = HIGH;
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50;
+
 // Current time
 unsigned long currentTime = millis();
 // Previous time
@@ -50,6 +56,9 @@ void setup() {
   // Initialize the output variables as outputs
   pinMode(redLight, OUTPUT);
   pinMode(greenLight, OUTPUT);
+
+  // Initialize button as input with internal pull-up resistor
+  pinMode(lightToggle, INPUT_PULLUP);
 
   // Set outputs to LOW
   digitalWrite(redLight, LOW);
@@ -80,6 +89,9 @@ void setup() {
 }
 
 void loop(){
+  handleButtonToggle();
+
+  // Handle WiFi client requests
   WiFiClient client = server.available();
 
   if (client) {
@@ -123,6 +135,59 @@ void loop(){
     // Close the connection
     client.stop();
     Serial.println("API Client disconnected.\n");
+  }
+}
+
+void handleButtonToggle() {
+  // Read the button state
+  bool reading = digitalRead(lightToggle);
+
+  // If the switch changed, due to noise or pressing:
+  if (reading != lastButtonState) {
+    // Reset the debouncing timer
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    // If the button state has changed:
+    if (reading != currentButtonState) {
+      currentButtonState = reading;
+
+      // Only toggle on button press (LOW, because of pull-up resistor)
+      if (currentButtonState == LOW) {
+        toggleLights();
+      }
+    }
+  }
+
+  // Save the reading for next time
+  lastButtonState = reading;
+}
+
+void toggleLights() {
+  // If both lights are off, turn on green (clean)
+  if (redLightState == "off" && greenLightState == "off") {
+    digitalWrite(greenLight, HIGH);
+    digitalWrite(redLight, LOW);
+    greenLightState = "on";
+    redLightState = "off";
+    Serial.println("Button: Green light (clean) turned ON");
+  }
+  // If green is on, switch to red (dirty)
+  else if (greenLightState == "on") {
+    digitalWrite(greenLight, LOW);
+    digitalWrite(redLight, HIGH);
+    greenLightState = "off";
+    redLightState = "on";
+    Serial.println("Button: Red light (dirty) turned ON");
+  }
+  // If red is on, turn both off
+  else if (redLightState == "on") {
+    digitalWrite(redLight, LOW);
+    digitalWrite(greenLight, LOW);
+    redLightState = "off";
+    greenLightState = "off";
+    Serial.println("Button: Both lights turned OFF");
   }
 }
 
@@ -172,7 +237,9 @@ void handleAPIRequest(WiFiClient& client, String& request, String& body) {
 
   if (request.indexOf("POST /api/lights/red/on") >= 0) {
     digitalWrite(redLight, HIGH);
+    digitalWrite(greenLight, LOW);  // Ensure only one light is on
     redLightState = "on";
+    greenLightState = "off";
     responseMessage = "Red light (GPIO18) turned ON";
     validRequest = true;
     Serial.println("API: Red light (GPIO18) turned ON");
@@ -186,7 +253,9 @@ void handleAPIRequest(WiFiClient& client, String& request, String& body) {
 
   } else if (request.indexOf("POST /api/lights/green/on") >= 0) {
     digitalWrite(greenLight, HIGH);
+    digitalWrite(redLight, LOW);  // Ensure only one light is on
     greenLightState = "on";
+    redLightState = "off";
     responseMessage = "Green light (GPIO19) turned ON";
     validRequest = true;
     Serial.println("API: Green light (GPIO19) turned ON");
