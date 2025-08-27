@@ -81,8 +81,8 @@ export default function DishwasherStatus({ dishStatus }: Props) {
                 "ESP32 change detected: Set to DIRTY (Red light GPIO 18)",
               );
             } else if (
-              currentState["greenLight"] === "on" &&
-              currentState["redLight"] === "off"
+              currentState["green light"] === "on" &&
+              currentState["red light"] === "off"
             ) {
               setCurrentStatus("clean");
               animateBackgroundColor(true);
