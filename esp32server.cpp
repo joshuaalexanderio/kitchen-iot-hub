@@ -5,10 +5,12 @@
 
 #include <WiFi.h>
 #include <ArduinoJson.h>
+#include<ESPmDNS.h>
 
-// REPLACE WITH NETWORK CREDENTIALS
-const char* ssid = "YOUR_WIFI_NAME";
+// REPLACE WITH YOUR NETWORK CREDENTIALS BEFORE UPLOADING
+const char* ssid = "YOUR_WIFI_NETWORK";
 const char* password = "YOUR_WIFI_PASSWORD";
+
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -17,12 +19,14 @@ WiFiServer server(80);
 String header;
 
 // Auxiliar variables to store the current output state
-String output18State = "off";
-String output19State = "off";
+String redLightState = "off";
+String greenLightState = "off";
 
 // Assign output variables to GPIO pins
-const int output18 = 18;
-const int output19 = 19;
+const int redLight = 18;
+const int greenLight = 19;
+const int lightToggle = 21;
+const int timerButton = 22;
 
 // Current time
 unsigned long currentTime = millis();
@@ -31,16 +35,25 @@ unsigned long previousTime = 0;
 // Define timeout time in milliseconds
 const long timeoutTime = 2000;
 
+// Network configuration - adjust for your network
+IPAddress local_IP(192, 168, 1, 100);      // Change to your desired IP
+IPAddress gateway(192, 168, 1, 1);         // Change to your router IP
+IPAddress subnet(255, 255, 255, 0);
+
 void setup() {
+ if (!WiFi.config(local_IP, gateway, subnet)) {
+  Serial.println("Static IP configuration failed");
+}
+
   Serial.begin(115200);
 
   // Initialize the output variables as outputs
-  pinMode(output18, OUTPUT);
-  pinMode(output19, OUTPUT);
+  pinMode(redLight, OUTPUT);
+  pinMode(greenLight, OUTPUT);
 
   // Set outputs to LOW
-  digitalWrite(output18, LOW);
-  digitalWrite(output19, LOW);
+  digitalWrite(redLight, LOW);
+  digitalWrite(greenLight, LOW);
 
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
@@ -58,10 +71,10 @@ void setup() {
   Serial.println(WiFi.localIP());
   Serial.println("\nAPI Endpoints:");
   Serial.println("GET  /api/lights - Get all light states");
-  Serial.println("POST /api/lights/18/on - Turn light 18 ON");
-  Serial.println("POST /api/lights/18/off - Turn light 18 OFF");
-  Serial.println("POST /api/lights/19/on - Turn light 19 ON");
-  Serial.println("POST /api/lights/19/off - Turn light 19 OFF");
+  Serial.println("POST /api/lights/red/o  n - Turn red light ON");
+  Serial.println("POST /api/lights/red/off - Turn red light OFF");
+  Serial.println("POST /api/lights/green/on - Turn green light ON");
+  Serial.println("POST /api/lights/green/off - Turn green light OFF");
 
   server.begin();
 }
@@ -141,8 +154,8 @@ void handleAPIRequest(WiFiClient& client, String& request, String& body) {
     DynamicJsonDocument doc(200);
     doc["status"] = "success";
     JsonObject lights = doc.createNestedObject("lights");
-    lights["18"] = output18State;
-    lights["19"] = output19State;
+    lights["red light"] = redLightState;
+    lights["green light"] = greenLightState;
 
     String jsonString;
     serializeJson(doc, jsonString);
@@ -157,33 +170,33 @@ void handleAPIRequest(WiFiClient& client, String& request, String& body) {
   bool validRequest = false;
   String responseMessage = "";
 
-  if (request.indexOf("POST /api/lights/18/on") >= 0) {
-    digitalWrite(output18, HIGH);
-    output18State = "on";
-    responseMessage = "Light 18 turned ON";
+  if (request.indexOf("POST /api/lights/red/on") >= 0) {
+    digitalWrite(redLight, HIGH);
+    redLightState = "on";
+    responseMessage = "Red light (GPIO18) turned ON";
     validRequest = true;
-    Serial.println("API: GPIO 18 ON");
+    Serial.println("API: Red light (GPIO18) turned ON");
 
-  } else if (request.indexOf("POST /api/lights/18/off") >= 0) {
-    digitalWrite(output18, LOW);
-    output18State = "off";
-    responseMessage = "Light 18 turned OFF";
+  } else if (request.indexOf("POST /api/lights/red/off") >= 0) {
+    digitalWrite(redLight, LOW);
+    redLightState = "off";
+    responseMessage = "Red light (GPIO18) OFF";
     validRequest = true;
-    Serial.println("API: GPIO 18 OFF");
+    Serial.println("API: Red light (GPIO18) turned OFF");
 
-  } else if (request.indexOf("POST /api/lights/19/on") >= 0) {
-    digitalWrite(output19, HIGH);
-    output19State = "on";
-    responseMessage = "Light 19 turned ON";
+  } else if (request.indexOf("POST /api/lights/green/on") >= 0) {
+    digitalWrite(greenLight, HIGH);
+    greenLightState = "on";
+    responseMessage = "Green light (GPIO19) turned ON";
     validRequest = true;
-    Serial.println("API: GPIO 19 ON");
+    Serial.println("API: Green light (GPIO19) turned ON");
 
-  } else if (request.indexOf("POST /api/lights/19/off") >= 0) {
-    digitalWrite(output19, LOW);
-    output19State = "off";
-    responseMessage = "Light 19 turned OFF";
+  } else if (request.indexOf("POST /api/lights/green/off") >= 0) {
+    digitalWrite(greenLight, LOW);
+    greenLightState = "off";
+    responseMessage = "Green light (GPIO19) turned OFF";
     validRequest = true;
-    Serial.println("API: GPIO 19 OFF");
+    Serial.println("API: Green light (GPIO19) turned OFF");
   }
 
   if (validRequest) {
@@ -197,8 +210,8 @@ void handleAPIRequest(WiFiClient& client, String& request, String& body) {
     doc["status"] = "success";
     doc["message"] = responseMessage;
     JsonObject lights = doc.createNestedObject("lights");
-    lights["18"] = output18State;
-    lights["19"] = output19State;
+    lights["red light"] = redLightState;
+    lights["green light"] = greenLightState;
 
     String jsonString;
     serializeJson(doc, jsonString);
