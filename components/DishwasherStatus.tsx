@@ -72,8 +72,8 @@ export default function DishwasherStatus({ dishStatus }: Props) {
 
           if (JSON.stringify(currentState) != JSON.stringify(lastKnownState)) {
             if (
-              currentState["redLight"] === "on" &&
-              currentState["greenLight"] === "off"
+              currentState["red light"] === "on" &&
+              currentState["green light"] === "off"
             ) {
               setCurrentStatus("dirty");
               animateBackgroundColor(false);
@@ -117,10 +117,10 @@ export default function DishwasherStatus({ dishStatus }: Props) {
 
     // Toggle clean to dirty
     if (currentStatus === "clean") {
-      fetch(`${ESP32_BASE_URL}/api/lights/greenLight/off`, {
+      fetch(`${ESP32_BASE_URL}/api/lights/green/off`, {
         method: "POST",
       });
-      fetch(`${ESP32_BASE_URL}/api/lights/redLight/on`, {
+      fetch(`${ESP32_BASE_URL}/api/lights/red/on`, {
         method: "POST",
       });
       // Delay to feel smooth with haptics
@@ -134,10 +134,10 @@ export default function DishwasherStatus({ dishStatus }: Props) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     } // Toggle dirty to clean
     else if (currentStatus === "dirty") {
-      fetch(`${ESP32_BASE_URL}/api/lights/redLight/off`, {
+      fetch(`${ESP32_BASE_URL}/api/lights/red/off`, {
         method: "POST",
       });
-      fetch(`${ESP32_BASE_URL}/api/lights/greenLight/on`, {
+      fetch(`${ESP32_BASE_URL}/api/lights/green/on`, {
         method: "POST",
       });
       // Delay to feel smooth with haptics
