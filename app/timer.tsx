@@ -112,8 +112,6 @@ export default function Timer() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Timer</Text>
-
       <TimerDisplay
         isPlaying={isPlaying}
         duration={TIMER_DURATION}
