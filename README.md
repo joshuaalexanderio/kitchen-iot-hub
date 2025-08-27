@@ -5,15 +5,12 @@ A comprehensive IoT solution using ESP32 and React Native for kitchen management
 ## Features
 
 ### Currently Implemented
-- Dishwasher status tracking with physical button and mobile controls
-- Cooking Timer: ESP32 button and mobile controls starts/stops timer with push notifications when complete
-- Multi-user synchronization with real-time status updates
-- Cross-platform mobile interface with haptic feedback
-- RESTful API design with proper CORS support
-- Shopping list with Firestore database persistence
-
-
-
+- **Dishwasher Status Tracking:** Physical button and mobile controls for clean/dirty status
+- **Cooking Timer:** ESP32 button and mobile controls starts/stops timer with push notifications when complete
+- **Multi-user Synchronization:** Real-time status updates across all connected devices
+- **Cross-platform Mobile Interface:** Haptic feedback and responsive design
+- **RESTful API Design:** Proper CORS support for web integration
+- **Shopping List:** Firestore database persistence with real-time updates
 
 ### In Development
 - **Dishwasher Cycle Timer:** Track full dishwasher cycles with completion alerts
