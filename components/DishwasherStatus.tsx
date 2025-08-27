@@ -19,6 +19,9 @@ export default function DishwasherStatus({ dishStatus }: Props) {
   const [isConnected, setIsConnected] = useState(true);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const backgroundColorAnim = useRef(
+    new Animated.Value(dishStatus === "clean" ? 1 : 0),
+  ).current;
 
   const warningPlayer = useAudioPlayer(
     "/System/Library/Audio/UISounds/jbl_cancel.caf",
@@ -27,6 +30,15 @@ export default function DishwasherStatus({ dishStatus }: Props) {
     "/System/Library/Audio/UISounds/jbl_confirm.caf",
   );
   const ESP32_BASE_URL = "http://10.0.0.122";
+
+  // Background color animation
+  const animateBackgroundColor = (toClean: boolean) => {
+    Animated.timing(backgroundColorAnim, {
+      toValue: toClean ? 1 : 0,
+      duration: 800,
+      useNativeDriver: false,
+    }).start();
+  };
 
   // Button press animation
   const animateButton = () => {
@@ -64,18 +76,16 @@ export default function DishwasherStatus({ dishStatus }: Props) {
               currentState["greenLight"] === "off"
             ) {
               setCurrentStatus("dirty");
-              console.log("ESP32 change detected: Set to DIRTY (GPIO 18)");
+              animateBackgroundColor(false);
               console.log(
                 "ESP32 change detected: Set to DIRTY (Red light GPIO 18)",
               );
             } else if (
-              currentState["19"] === "on" &&
-              currentState["18"] === "off"
               currentState["greenLight"] === "on" &&
               currentState["redLight"] === "off"
             ) {
               setCurrentStatus("clean");
-              console.log("ESP32 change detected: Set to CLEAN (GPIO 19)");
+              animateBackgroundColor(true);
               console.log(
                 "ESP32 change detected: Set to CLEAN (Green light (GPIO 19)",
               );
@@ -116,6 +126,7 @@ export default function DishwasherStatus({ dishStatus }: Props) {
       // Delay to feel smooth with haptics
       setTimeout(() => {
         setCurrentStatus("dirty");
+        animateBackgroundColor(false);
       }, 100);
       warningPlayer.seekTo(0);
       warningPlayer.play();
@@ -132,6 +143,7 @@ export default function DishwasherStatus({ dishStatus }: Props) {
       // Delay to feel smooth with haptics
       setTimeout(() => {
         setCurrentStatus("clean");
+        animateBackgroundColor(true);
       }, 50);
       successPlayer.seekTo(0);
       successPlayer.play();
@@ -139,9 +151,16 @@ export default function DishwasherStatus({ dishStatus }: Props) {
     }
   };
 
+  const cardBackgroundColor = backgroundColorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["#fbd8d8", theme.colorMint], //
+  });
+
   return (
     <View style={styles.container}>
-      <View style={styles.statusCard}>
+      <Animated.View
+        style={[styles.statusCard, { backgroundColor: cardBackgroundColor }]}
+      >
         <Animated.View style={[styles.statusContainer, { opacity: fadeAnim }]}>
           <Text style={styles.title}>Dishwasher</Text>
           <Text style={styles.statusText}>{currentStatus}</Text>
@@ -163,7 +182,7 @@ export default function DishwasherStatus({ dishStatus }: Props) {
         {!isConnected && (
           <Text style={styles.connectionStatus}>Device disconnected</Text>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -204,7 +223,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 32,
-    fontWeight: "300",
+    fontWeight: "600",
     color: theme.colorBlack,
     letterSpacing: 1,
   },
