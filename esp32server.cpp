@@ -71,7 +71,7 @@ void setup() {
   Serial.println(WiFi.localIP());
   Serial.println("\nAPI Endpoints:");
   Serial.println("GET  /api/lights - Get all light states");
-  Serial.println("POST /api/lights/red/o  n - Turn red light ON");
+  Serial.println("POST /api/lights/red/on - Turn red light ON");
   Serial.println("POST /api/lights/red/off - Turn red light OFF");
   Serial.println("POST /api/lights/green/on - Turn green light ON");
   Serial.println("POST /api/lights/green/off - Turn green light OFF");

@@ -3,6 +3,7 @@ import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { theme } from "../theme";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 
 export default function Layout() {
   return (
@@ -25,7 +26,15 @@ export default function Layout() {
           ),
         }}
       />
-      );
+      <Tabs.Screen
+        name="shoppingList"
+        options={{
+          title: "Shopping List",
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="shoppingcart" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
