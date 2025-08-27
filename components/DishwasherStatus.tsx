@@ -46,7 +46,7 @@ export default function DishwasherStatus({ dishStatus }: Props) {
 
   // Listen for ESP32 button presses
   useEffect(() => {
-    let lastKnownState = { "18": "off", "19": "off" };
+    let lastKnownState = { greenLight: "off", redLight: "off" };
 
     const checkForButtonChanges = async () => {
       try {
@@ -59,15 +59,26 @@ export default function DishwasherStatus({ dishStatus }: Props) {
           const currentState = data.lights;
 
           if (JSON.stringify(currentState) != JSON.stringify(lastKnownState)) {
-            if (currentState["18"] === "on" && currentState["19"] === "off") {
+            if (
+              currentState["redLight"] === "on" &&
+              currentState["greenLight"] === "off"
+            ) {
               setCurrentStatus("dirty");
               console.log("ESP32 change detected: Set to DIRTY (GPIO 18)");
+              console.log(
+                "ESP32 change detected: Set to DIRTY (Red light GPIO 18)",
+              );
             } else if (
               currentState["19"] === "on" &&
               currentState["18"] === "off"
+              currentState["greenLight"] === "on" &&
+              currentState["redLight"] === "off"
             ) {
               setCurrentStatus("clean");
               console.log("ESP32 change detected: Set to CLEAN (GPIO 19)");
+              console.log(
+                "ESP32 change detected: Set to CLEAN (Green light (GPIO 19)",
+              );
             }
 
             lastKnownState = currentState;
@@ -94,11 +105,12 @@ export default function DishwasherStatus({ dishStatus }: Props) {
   const toggleDishStatus = () => {
     animateButton();
 
+    // Toggle clean to dirty
     if (currentStatus === "clean") {
-      fetch(`${ESP32_BASE_URL}/api/lights/19/off`, {
+      fetch(`${ESP32_BASE_URL}/api/lights/greenLight/off`, {
         method: "POST",
       });
-      fetch(`${ESP32_BASE_URL}/api/lights/18/on`, {
+      fetch(`${ESP32_BASE_URL}/api/lights/redLight/on`, {
         method: "POST",
       });
       // Delay to feel smooth with haptics
@@ -109,11 +121,12 @@ export default function DishwasherStatus({ dishStatus }: Props) {
       warningPlayer.play();
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    } else if (currentStatus === "dirty") {
-      fetch(`${ESP32_BASE_URL}/api/lights/18/off`, {
+    } // Toggle dirty to clean
+    else if (currentStatus === "dirty") {
+      fetch(`${ESP32_BASE_URL}/api/lights/redLight/off`, {
         method: "POST",
       });
-      fetch(`${ESP32_BASE_URL}/api/lights/19/on`, {
+      fetch(`${ESP32_BASE_URL}/api/lights/greenLight/on`, {
         method: "POST",
       });
       // Delay to feel smooth with haptics
