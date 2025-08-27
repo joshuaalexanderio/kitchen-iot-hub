@@ -1,5 +1,5 @@
 export const theme = {
-  colorCerulean: "#5DADE2",
+  colorBlue: "#5DADE2",
   colorWhite: "#fff",
   colorOffWhite: "#fafafa",
 
@@ -12,6 +12,7 @@ export const theme = {
   colorGrey: "#999",
   colorDarkGrey: "#666",
   colorSage: "#A2AF9B",
+  colorMint: "#e7fbdd",
   colorCream: "#DCCFC0",
   colorPeach: "#eba39c",
 };
