@@ -10,6 +10,7 @@
     "proxy": "http://localhost:3000"
   },
   "dependencies": {
+    "@ant-design/icons": "5.x",
     "date-fns": "^4.1.0",
     "expo": "^53.0.20",
     "expo-audio": "~0.4.8",
@@ -22,13 +23,16 @@
     "expo-notifications": "~0.31.4",
     "expo-router": "~5.1.4",
     "expo-status-bar": "~2.2.3",
+    "firebase": "^12.1.0",
     "prettier": "^3.6.2",
     "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-native": "0.79.5",
     "react-native-countdown-circle-timer": "^3.2.1",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
-    "react-native-svg": "^15.12.1"
+    "react-native-svg": "^15.12.1",
+    "react-native-web": "^0.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
