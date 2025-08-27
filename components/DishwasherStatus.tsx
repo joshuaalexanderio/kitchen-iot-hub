@@ -197,12 +197,11 @@ const styles = StyleSheet.create({
   },
   statusCard: {
     alignItems: "center",
-    backgroundColor: theme.colorOffWhite,
     borderRadius: 16,
     padding: 40,
     minWidth: 200,
     elevation: 1,
-    shadowColor: "#000",
+    shadowColor: theme.colorBlack,
     shadowOffset: {
       width: 0,
       height: 1,
