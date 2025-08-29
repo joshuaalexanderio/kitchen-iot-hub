@@ -4,7 +4,7 @@
     "slug": "kitchen-iot-hub",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "kitchen-iot-hub",
@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.kitcheniothub"
+      "bundleIdentifier": "com.anonymous.kitcheniothub",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +37,25 @@
     },
     "plugins": [
       "expo-audio",
-      "expo-router"
-    ]
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#232323",
+          "image": "./assets/images/splash-icon.png",
+          "dark": {
+            "image": "./assets/images/splash-icon-dark.png",
+            "backgroundColor": "#000000"
+          },
+          "imageWidth": 200
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "89ca836f-d4b8-4183-9e38-047db0393451"
+      }
+    }
   }
 }

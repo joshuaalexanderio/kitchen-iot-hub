@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.x",
+    "@react-native-community/cli": "^20.0.1",
+    "@react-native-firebase/app": "^23.1.2",
+    "@react-native-firebase/firestore": "^23.1.2",
     "date-fns": "^4.1.0",
     "expo": "^53.0.20",
     "expo-audio": "~0.4.8",
-    "expo-av": "~15.1.7",
     "expo-constants": "~17.1.7",
     "expo-dev-client": "~5.2.4",
     "expo-device": "~7.1.4",
@@ -22,6 +24,7 @@
     "expo-linking": "~7.1.7",
     "expo-notifications": "~0.31.4",
     "expo-router": "~5.1.4",
+    "expo-splash-screen": "~0.30.10",
     "expo-status-bar": "~2.2.3",
     "firebase": "^12.1.0",
     "prettier": "^3.6.2",
@@ -31,7 +34,6 @@
     "react-native-countdown-circle-timer": "^3.2.1",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
-    "react-native-svg": "^15.12.1",
     "react-native-web": "^0.20.0"
   },
   "devDependencies": {
