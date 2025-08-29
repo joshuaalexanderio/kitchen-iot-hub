@@ -19,6 +19,7 @@ Notifications.setNotificationHandler({
 });
 
 export default function Timer() {
+  const isDemoMode = process.env.NODE_ENV == "production";
   const [isPlaying, setIsPlaying] = useState(false);
   const [key, setKey] = useState(0); // Used to restart the timer
   const [isFinished, setIsFinished] = useState(false);
@@ -76,7 +77,7 @@ export default function Timer() {
       }
     };
 
-    // Poll every 300ms for timer button changes (faster than dishwasher)
+    // Poll every 300ms for timer button changes
     const interval = setInterval(checkForTimerButtonChanges, 300);
     checkForTimerButtonChanges(); // Initial check
 
@@ -169,14 +170,14 @@ export default function Timer() {
   };
 
   const getButtonText = () => {
-    if (!isConnected) return "Offline";
+    if (!isConnected && !isDemoMode) return "Offline";
     if (isFinished) return "Start New Timer";
     if (isPlaying) return "Pause";
     return "Start";
   };
 
   const handleMainButtonPress = () => {
-    if (!isConnected) return; // Don't do anything if offline
+    if (!isConnected && !isDemoMode) return; // Don't do anything if offline
 
     if (isFinished || !isPlaying) {
       startTimer();
@@ -197,7 +198,7 @@ export default function Timer() {
       {isFinished && <Text style={styles.finishedText}>Time's Up!</Text>}
 
       {/* Connection status indicator */}
-      {!isConnected && (
+      {!isConnected && !isDemoMode && (
         <Text style={styles.connectionStatus}>ESP32 Offline</Text>
       )}
 
@@ -215,7 +216,7 @@ export default function Timer() {
           style={[
             styles.button,
             styles.resetButton,
-            !isConnected && styles.offlineButton,
+            !isConnected && !isDemoMode && styles.offlineButton,
           ]}
           activeOpacity={0.7}
           onPress={resetTimer}

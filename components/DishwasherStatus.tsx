@@ -29,7 +29,9 @@ export default function DishwasherStatus({ dishStatus }: Props) {
   const successPlayer = useAudioPlayer(
     "/System/Library/Audio/UISounds/jbl_confirm.caf",
   );
-  const ESP32_BASE_URL = "http://10.0.0.122";
+
+  const isDemoMode = process.env.NODE_ENV === "production";
+  const ESP32_BASE_URL = isDemoMode ? null : "http://10.0.0.122";
 
   // Background color animation
   const animateBackgroundColor = (toClean: boolean) => {
@@ -115,42 +117,52 @@ export default function DishwasherStatus({ dishStatus }: Props) {
   const toggleDishStatus = () => {
     animateButton();
 
-    // Toggle clean to dirty
-    if (currentStatus === "clean") {
-      fetch(`${ESP32_BASE_URL}/api/lights/green/off`, {
-        method: "POST",
-      });
-      fetch(`${ESP32_BASE_URL}/api/lights/red/on`, {
-        method: "POST",
-      });
-      // Delay to feel smooth with haptics
-      setTimeout(() => {
-        setCurrentStatus("dirty");
-        animateBackgroundColor(false);
-      }, 100);
+    if (isDemoMode) {
+      // Simulate response
+      console.log("Demo: Toggling dishwasher status");
+      setCurrentStatus(currentStatus == "dirty" ? "clean" : "dirty");
+      animateBackgroundColor(currentStatus == "dirty");
+
       warningPlayer.seekTo(0);
       warningPlayer.play();
-
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    } // Toggle dirty to clean
-    else if (currentStatus === "dirty") {
-      fetch(`${ESP32_BASE_URL}/api/lights/red/off`, {
-        method: "POST",
-      });
-      fetch(`${ESP32_BASE_URL}/api/lights/green/on`, {
-        method: "POST",
-      });
-      // Delay to feel smooth with haptics
-      setTimeout(() => {
-        setCurrentStatus("clean");
-        animateBackgroundColor(true);
-      }, 50);
-      successPlayer.seekTo(0);
-      successPlayer.play();
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      // Toggle clean to dirty
+      if (currentStatus === "clean") {
+        fetch(`${ESP32_BASE_URL}/api/lights/green/off`, {
+          method: "POST",
+        });
+        fetch(`${ESP32_BASE_URL}/api/lights/red/on`, {
+          method: "POST",
+        });
+        // Delay to feel smooth with haptics
+        setTimeout(() => {
+          setCurrentStatus("dirty");
+          animateBackgroundColor(false);
+        }, 100);
+        warningPlayer.seekTo(0);
+        warningPlayer.play();
+
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      } // Toggle dirty to clean
+      else if (currentStatus === "dirty") {
+        fetch(`${ESP32_BASE_URL}/api/lights/red/off`, {
+          method: "POST",
+        });
+        fetch(`${ESP32_BASE_URL}/api/lights/green/on`, {
+          method: "POST",
+        });
+        // Delay to feel smooth with haptics
+        setTimeout(() => {
+          setCurrentStatus("clean");
+          animateBackgroundColor(true);
+        }, 50);
+        successPlayer.seekTo(0);
+        successPlayer.play();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     }
   };
-
   const cardBackgroundColor = backgroundColorAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["#fbd8d8", theme.colorMint], //
@@ -168,18 +180,21 @@ export default function DishwasherStatus({ dishStatus }: Props) {
 
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <TouchableOpacity
-            style={[styles.button, !isConnected && styles.disconnectedButton]}
+            style={[
+              styles.button,
+              !isConnected && !isDemoMode && styles.disconnectedButton,
+            ]}
             activeOpacity={0.7}
             onPress={toggleDishStatus}
-            disabled={!isConnected}
+            disabled={!isConnected && !isDemoMode}
           >
             <Text style={styles.buttonText}>
-              {isConnected ? "Toggle" : "Offline"}
+              {isDemoMode || isConnected ? "Toggle" : "Offline"}{" "}
             </Text>
           </TouchableOpacity>
         </Animated.View>
 
-        {!isConnected && (
+        {!isConnected && !isDemoMode && (
           <Text style={styles.connectionStatus}>Device disconnected</Text>
         )}
       </Animated.View>
