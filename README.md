@@ -3,7 +3,8 @@
 A comprehensive IoT kitchen management system built with ESP32 and React Native, featuring dishwasher status monitoring, smart timers, and shopping list management.
 
 
-https://github.com/user-attachments/assets/cf10cb05-2f2a-4c40-ad63-bd4f099c12f1
+https://github.com/user-attachments/assets/f1768ebc-90a7-4762-84bc-340c5aa99274
+
 
 
 ## Features
