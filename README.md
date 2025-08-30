@@ -5,7 +5,7 @@ A comprehensive IoT kitchen management system built with ESP32 and React Native,
 
 https://github.com/user-attachments/assets/f1768ebc-90a7-4762-84bc-340c5aa99274
 
-
+[Live Demo](https://youtu.be/RkhE9cLfJ8Y)
 
 ## Features
 
