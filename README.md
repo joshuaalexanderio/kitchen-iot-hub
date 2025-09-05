@@ -1,11 +1,11 @@
 # Kitchen IoT Hub
 
-A comprehensive IoT kitchen management system built with ESP32 and React Native, featuring dishwasher status monitoring, smart timers, and shopping list management.
+A comprehensive IoT kitchen management system built with ESP32 microcontroller and React Native, featuring dishwasher status monitoring, smart timers, and shopping list management.
 
 
 https://github.com/user-attachments/assets/f1768ebc-90a7-4762-84bc-340c5aa99274
 
-[Live Demo](https://youtu.be/RkhE9cLfJ8Y)
+[Live demo running concurrently on Android and iOS](https://youtu.be/RkhE9cLfJ8Y)
 
 ## Features
 
