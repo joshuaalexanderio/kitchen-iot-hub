@@ -10,7 +10,7 @@ https://github.com/user-attachments/assets/f1768ebc-90a7-4762-84bc-340c5aa99274
 ## Features
 
 - **Dishwasher Status Tracking:** Physical button and mobile controls for toggling clean/dirty status
-- **Cooking Timer:** Microcontroller button and mobile controls starts/stops timer with push notifications when complete
+- **Cooking Timer:** Physical button and mobile controls starts/stops timer with push notifications when complete
 - **Shopping List:** Firestore database persistence with real-time updates
 - **Multi-user Synchronization:** Real-time status updates, timer and shopping list synched between users
 - **Cross-platform Mobile Interface:** Haptic feedback and responsive design on both iOS and Android
